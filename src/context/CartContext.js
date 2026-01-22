@@ -12,7 +12,7 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [cartCount, setCartCount] = useState(0);
 
-  // 🔄 Fetch full cart from backend
+  // 🔄 Fetch full cart
   const fetchCart = async () => {
     if (!user) {
       setCart([]);
@@ -30,29 +30,45 @@ export function CartProvider({ children }) {
       );
       setCartCount(total);
     } catch (error) {
+      console.error("Cart fetch error:", error);
       setCart([]);
       setCartCount(0);
     }
   };
 
-  // ➕ ADD TO CART (🔥 THIS WAS MISSING)
-  const addToCart = async (productId) => {
-    if (!user) return;
+  // 🔥 Needed by Navbar, Cart, Buy Now, Quantity update etc.
+  const fetchCartCount = async () => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
 
     try {
-      await api.post("/api/cart", {
-        product_id: productId,
-        quantity: 1,
-      });
-
-      // 🔁 Sync cart & navbar count
-      fetchCart();
-    } catch (error) {
-      throw error;
+      const res = await api.get("/api/cart");
+      const total = res.data.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+      setCartCount(total);
+    } catch {
+      setCartCount(0);
     }
   };
 
-  // 🔁 Auto sync cart on login/logout
+  // ➕ Add to cart
+  const addToCart = async (productId) => {
+    if (!user) return;
+
+    await api.post("/api/cart", {
+      product_id: productId,
+      quantity: 1,
+    });
+
+    await fetchCart();        // sync cart
+    await fetchCartCount();   // sync navbar
+  };
+
+  // 🔁 Auto sync when login/logout
   useEffect(() => {
     fetchCart();
   }, [user]);
@@ -62,8 +78,9 @@ export function CartProvider({ children }) {
       value={{
         cart,
         cartCount,
-        addToCart,
         fetchCart,
+        fetchCartCount, // 🔥 THIS FIXES YOUR CRASH
+        addToCart,
       }}
     >
       {children}

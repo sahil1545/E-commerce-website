@@ -47,6 +47,34 @@ const addToCart = async (item) => {
   }
 };
 
+const updateQuantity = async (cartId, userId, quantity) => {
+  const { data, error } = await supabase
+    .from("cart_items")      // ✅ CORRECT TABLE NAME
+    .update({ quantity })
+    .eq("id", cartId)
+    .eq("user_id", userId)   // 🔒 SECURITY
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+
+
+
+const updateCartItem = async (id, quantity) => {
+  const { data, error } = await supabase
+    .from("cart_items")
+    .update({ quantity })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
 const removeFromCart = async (id) => {
   const { error } = await supabase
     .from("cart_items")
@@ -60,5 +88,7 @@ const removeFromCart = async (id) => {
 export default {
   getCartItems,
   addToCart,
-  removeFromCart
+  updateCartItem,
+  removeFromCart,
+  updateQuantity,
 };

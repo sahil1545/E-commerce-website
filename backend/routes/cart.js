@@ -29,12 +29,58 @@ router.post("/", fetchUser, async (req, res) => {
   }
 });
 
+// UPDATE cart item quantity
+router.put("/:id", fetchUser, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+
+    if (typeof quantity !== "number" || quantity < 1) {
+      return res.status(400).json({
+        error: "Invalid quantity",
+      });
+    }
+
+    const updated = await Cart.updateQuantity(
+      req.params.id,
+      req.user.id,
+      quantity
+    );
+
+    res.json(updated);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+   
+
+
+
+// UPDATE cart item quantity
+router.put("/:id", fetchUser, async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const qty = Number(quantity);
+    if (!qty || qty < 1 || !Number.isInteger(qty)) {
+      return res.status(400).json({ error: "Quantity must be a positive integer" });
+    }
+
+    const updatedItem = await Cart.updateQuantity(req.params.id, req.user.id, qty);
+    res.json(updatedItem);
+  } catch (error) {
+    console.error("Update cart error:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // REMOVE from cart
 router.delete("/:id", fetchUser, async (req, res) => {
   try {
     await Cart.removeFromCart(req.params.id);
     res.json({ success: true });
-  } 
+  }
   catch (error) {
     res.status(400).json({ error: error.message });
   }
