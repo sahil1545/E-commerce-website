@@ -8,6 +8,7 @@ import OrderConfirmModal from "../components/OrderConfirmModal";
 import PromoCarousel from "../components/PromoCarousel";
 import LazyImage from "../components/LazyImage";
 import SkeletonLoader from "../components/SkeletonLoader";
+import { Link } from "react-router-dom";
 
 function Products() {
   const { theme, showAlert } = useUI();
@@ -589,40 +590,73 @@ function Products() {
               Address: 123 Shopping Street, E-commerce City, India
             </p>
           </div>
+          
 
-          <div style={styles.footerSection}>
-            <h4 style={styles.footerTitle}>Follow Us</h4>
-            <div style={styles.socialLinks}>
-              <a href="#" style={styles.socialLink} title="Instagram">
-                📷 @shopsphere_official
-              </a>
-              <a href="#" style={styles.socialLink} title="Twitter/X">
-                🐦 @ShopSphere_IN
-              </a>
-              <a href="#" style={styles.socialLink} title="Facebook">
-                📘 ShopSphere India
-              </a>
-            </div>
-          </div>
+<div style={styles.footerSection}>
+  <h4 style={styles.footerTitle}>Follow Us</h4>
 
-          <div style={styles.footerSection}>
-            <h4 style={styles.footerTitle}>Quick Links</h4>
-            <div style={styles.footerLinks}>
-              <a href="#" style={styles.footerLink}>About Us</a>
-              <a href="#" style={styles.footerLink}>Privacy Policy</a>
-              <a href="#" style={styles.footerLink}>Terms of Service</a>
-              <a href="#" style={styles.footerLink}>Return Policy</a>
-            </div>
-          </div>
-        </div>
+  <div style={styles.socialLinks}>
+    <a
+      href="https://www.instagram.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={styles.socialLink}
+    >
+      📷 Instagram
+    </a>
+
+    <a
+      href="https://twitter.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={styles.socialLink}
+    >
+      🐦 Twitter / X
+    </a>
+
+    <a
+      href="https://www.facebook.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={styles.socialLink}
+    >
+      📘 Facebook
+    </a>
+  </div>
+</div>
+
+<div style={styles.footerSection}>
+  <h4 style={styles.footerTitle}>Quick Links</h4>
+
+  <div style={styles.footerLinks}>
+    <Link to="/" style={styles.footerLink}>
+      About Us
+    </Link>
+
+    <Link to="/" style={styles.footerLink}>
+      Privacy Policy
+    </Link>
+
+    <Link to="/" style={styles.footerLink}>
+      Terms of Service
+    </Link>
+
+    <Link to="/" style={styles.footerLink}>
+      Return Policy
+    </Link>
+  </div>
+</div>
+
 
         <div style={styles.footerBottom}>
           <p style={styles.footerText}>
             © 2024 ShopSphere. All rights reserved. | Made with ❤️ in India
           </p>
         </div>
+        </div>
       </footer>
     </div>
+
     </>
   );
 }

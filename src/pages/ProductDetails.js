@@ -27,30 +27,43 @@ function ProductDetails() {
   const sizes = ["S", "M", "L", "XL", "XXL"];
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await api.get(`/api/products/${id}`);
-        setProduct(res.data);
-        // Set default variants
-        setSelectedColor(colors[0]);
-        setSelectedSize(sizes[0]);
-        // Fetch related products
-        if (res.data.category) {
-          const relatedRes = await api.get("/api/products", {
-            params: { category: res.data.category, limit: 4 }
-          });
-          setRelatedProducts(relatedRes.data.filter(p => p.id !== res.data.id));
-        }
-      } catch {
-        showAlert("Failed to load product", "error");
-        navigate("/");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProduct = async () => {
+    try {
+      const res = await api.get(`/api/products/${id}`);
+      const productData = res.data;
 
-    fetchProduct();
-  }, [id, navigate, showAlert]);
+      setProduct(productData);
+
+      // ✅ Set default variants safely from product data
+      if (productData.colors?.length) {
+        setSelectedColor(productData.colors[0]);
+      }
+
+      if (productData.sizes?.length) {
+        setSelectedSize(productData.sizes[0]);
+      }
+
+      // ✅ Fetch related products
+      if (productData.category) {
+        const relatedRes = await api.get("/api/products", {
+          params: { category: productData.category, limit: 4 }
+        });
+
+        setRelatedProducts(
+          relatedRes.data.filter(p => p.id !== productData.id)
+        );
+      }
+    } catch {
+      showAlert("Failed to load product", "error");
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProduct();
+}, [id, navigate, showAlert]);
+
 
   const handleAddToCart = async () => {
     if (!user) {

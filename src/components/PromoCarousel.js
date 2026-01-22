@@ -1,30 +1,41 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 function PromoCarousel({ banners, theme }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const intervalRef = useRef(null);
 
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % banners.length);
-  };
+  const nextSlide = useCallback(() => {
+  setCurrentIndex((prev) =>
+    prev === banners.length - 1 ? 0 : prev + 1
+  );
+}, [banners.length]);
 
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  };
+const prevSlide = useCallback(() => {
+  setCurrentIndex((prev) =>
+    prev === 0 ? banners.length - 1 : prev - 1
+  );
+}, [banners.length]);
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
+const goToSlide = useCallback((index) => {
+  setCurrentIndex(index);
+}, []);
+
 
   useEffect(() => {
-    if (!isHovered) {
-      intervalRef.current = setInterval(nextSlide, 4000);
-    } else {
+  if (isHovered) return;
+
+  intervalRef.current = setInterval(() => {
+    nextSlide();
+  }, 4000);
+
+  return () => {
+    if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    return () => clearInterval(intervalRef.current);
-  }, [isHovered, banners.length]);
+  };
+}, [isHovered, nextSlide]);
+
 
   const styles = {
     container: {

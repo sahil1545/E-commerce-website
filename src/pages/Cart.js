@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import { useUI } from "../context/UiContext";
 import { useCart } from "../context/CartContext";
@@ -19,20 +19,22 @@ function Cart() {
   const [selectedItem, setSelectedItem] = useState(null);
 
 
-  const fetchCart = async () => {
-    try {
-      const res = await api.get("/api/cart");
-      setCartItems(res.data);
-    } catch {
-      showAlert("Failed to load cart", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchCart = useCallback(async () => {
+  try {
+    const res = await api.get("/api/cart");
+    setCartItems(res.data);
+  } catch {
+    showAlert("Failed to load cart", "error");
+  } finally {
+    setLoading(false);
+  }
+}, [showAlert]);
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
+
+ useEffect(() => {
+  fetchCart();
+}, [fetchCart]);
+
 
   // ❌ Remove item
   const removeFromCart = async (id) => {
@@ -50,39 +52,6 @@ function Cart() {
   const buyNowItem = (item) => {
     setSelectedItem(item);
     setShowPaymentSingle(true);
-  };
-
-  // 🧾 Place order (all cart items)
-  const placeOrder = async () => {
-    if (placing) return;
-
-    if (cartItems.length === 0) {
-      showAlert("Cart is empty", "info");
-      return;
-    }
-
-    const items = cartItems.map((item) => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: item.products.price,
-    }));
-
-    try {
-      setPlacing(true);
-
-      await api.post("/api/orders", { items });
-
-      setCartItems([]);
-      fetchCartCount();
-      showAlert("Order placed successfully 🎉", "success");
-      navigate("/orders");
-    } catch (error) {
-      console.error("Order placement error:", error.response?.data || error.message);
-      const errorMessage = error.response?.data?.error || "Failed to place order";
-      showAlert(errorMessage, "error");
-    } finally {
-      setPlacing(false);
-    }
   };
 
   const styles = {
@@ -340,6 +309,9 @@ function Cart() {
               </div>
             </div>
           ))}
+
+          
+
 
           <div style={styles.checkoutSection}>
             <p style={styles.totalAmount}>Total: ₹{totalPrice}</p>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import { useAuth } from "./Authcontext";
 
@@ -13,28 +13,28 @@ export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
 
   // 🔄 Fetch full cart
-  const fetchCart = async () => {
-    if (!user) {
-      setCart([]);
-      setCartCount(0);
-      return;
-    }
+  const fetchCart = useCallback(async () => {
+  if (!user) {
+    setCart([]);
+    setCartCount(0);
+    return;
+  }
 
-    try {
-      const res = await api.get("/api/cart");
-      setCart(res.data);
+  try {
+    const res = await api.get("/api/cart");
+    setCart(res.data);
 
-      const total = res.data.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      setCartCount(total);
-    } catch (error) {
-      console.error("Cart fetch error:", error);
-      setCart([]);
-      setCartCount(0);
-    }
-  };
+    const total = res.data.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+    setCartCount(total);
+  } catch {
+    setCart([]);
+    setCartCount(0);
+  }
+}, [user]);
+
 
   // 🔥 Needed by Navbar, Cart, Buy Now, Quantity update etc.
   const fetchCartCount = async () => {
@@ -70,8 +70,9 @@ export function CartProvider({ children }) {
 
   // 🔁 Auto sync when login/logout
   useEffect(() => {
-    fetchCart();
-  }, [user]);
+  fetchCart();
+}, [fetchCart]);
+
 
   return (
     <CartContext.Provider
