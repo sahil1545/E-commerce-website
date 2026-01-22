@@ -88,38 +88,39 @@ function Products() {
   /* 📦 FETCH PRODUCTS (SINGLE SOURCE OF TRUTH) */
   const lastFetchRef = useRef({});
 
-  useEffect(() => {
-    const currentParams = { page, debouncedSearch, minPrice, maxPrice };
-    if (JSON.stringify(lastFetchRef.current) === JSON.stringify(currentParams)) return;
-    lastFetchRef.current = currentParams;
+ useEffect(() => {
+  const loadProducts = async () => {
+    try {
+      const res = await api.get("/api/products", {
+        params: {
+          search,
+          minPrice,
+          maxPrice,
+          page,
+          limit: LIMIT,
+        },
+      });
 
-    const loadProducts = async () => {
-      try {
-        const res = await api.get("/api/products", {
-          params: {
-            search: debouncedSearch,
-            minPrice,
-            maxPrice,
-            page,
-            limit: LIMIT,
-          },
-        });
+      const data = Array.isArray(res.data) ? res.data : [];
 
-        setProducts((prev) => {
-          const merged = page === 1 ? res.data : [...prev, ...res.data];
-          return Array.from(new Map(merged.map((p) => [p.id, p])).values());
-        });
+      setProducts((prev) => {
+        const merged = page === 1 ? data : [...prev, ...data];
+        return Array.from(
+          new Map(merged.map((p) => [p.id, p])).values()
+        );
+      });
 
-        setHasMore(res.data.length === LIMIT);
-        setLoading(false);
-      } catch {
-        showAlert("Failed to load products", "error");
-        setLoading(false);
-      }
-    };
+    } catch (err) {
+      console.error("Product fetch error:", err);
+      showAlert("Failed to load products", "error");
+      setProducts([]); // ⛑ safety fallback
+    }
+  };
 
-    loadProducts();
-  }, [page, debouncedSearch, minPrice, maxPrice, showAlert]);
+  loadProducts();
+}, [page, search, minPrice, maxPrice, showAlert]);
+
+       
 
   /* 🛒 ADD TO CART */
   const handleAddToCart = async (productId) => {
@@ -468,8 +469,9 @@ function Products() {
         {loading ? (
           <SkeletonLoader type="productCard" count={12} />
         ) : (
-          products.map((product) => (
-            <div
+           Array.isArray(products) &&
+           products.map((product) => (
+           <div
               key={product.id}
               style={styles.card}
               onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
