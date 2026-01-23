@@ -120,6 +120,36 @@ function Products() {
   loadProducts();
 }, [page, search, minPrice, maxPrice, showAlert]);
 
+useEffect(() => {
+  let isMounted = true;
+
+  const loadProducts = async () => {
+    try {
+      const res = await api.get("/api/products");
+
+      if (!Array.isArray(res.data)) {
+        throw new Error("Products API did not return array");
+      }
+
+      if (isMounted) {
+        setProducts(res.data);
+      }
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
+  };
+
+  loadProducts();
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
+
        
 
   /* 🛒 ADD TO CART */
