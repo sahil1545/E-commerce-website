@@ -86,7 +86,7 @@ function Products() {
   }, [debouncedSearch]);
 
   /* 📦 FETCH PRODUCTS (SINGLE SOURCE OF TRUTH) */
-  const lastFetchRef = useRef({});
+  
 
  useEffect(() => {
   const loadProducts = async () => {
@@ -109,7 +109,7 @@ function Products() {
           new Map(merged.map((p) => [p.id, p])).values()
         );
       });
-
+          setHasMore(res.data.length === 12);
     } catch (err) {
       console.error("Product fetch error:", err);
       showAlert("Failed to load products", "error");
